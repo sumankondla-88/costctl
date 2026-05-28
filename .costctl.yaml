@@ -1,0 +1,31 @@
+clouds:
+    - aws
+    - azure
+    - gcp
+tag_mappings:
+    environment:
+        - env
+        - environment
+        - Environment
+        - stage
+        - Stage
+    owner:
+        - owner
+        - Owner
+        - owner-contact
+        - creator
+        - CreatedBy
+    project:
+        - project
+        - Project
+        - app
+        - application
+        - Application
+thresholds:
+    cpu_utilization_percent: 5
+    idle_days: 7
+    snapshot_retention_days: 30
+    disk_unattached_days: 3
+budget:
+    total_monthly: 10000
+    fail_on_waste_threshold: 500

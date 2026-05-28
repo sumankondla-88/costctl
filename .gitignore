@@ -1,0 +1,9 @@
+# Binaries
+costctl
+costctl.exe
+
+# OS generated files
+.DS_Store
+
+# Report outputs
+report.html
