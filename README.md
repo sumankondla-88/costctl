@@ -1,112 +1,82 @@
 # costctl
 
-`costctl` is a unified Multi-Cloud DevOps Spend Optimizer and FinOps command-line tool written in Go. It aggregates cost data, maps resources to a normalized schema, and executes waste-detection heuristics across AWS, Azure, and GCP. 
+**Multi-cloud spend visibility + waste detection in one CLI.**
 
-The tool includes a premium glassmorphic Single-Page Application (SPA) HTML report featuring integrated OAuth/SSO simulations, team auto-provisioning directory sync, live spend stats scaling, and custom tag connectors. It also functions as a CI/CD compliance gate to automatically block pipelines when cloud waste limits are violated.
+Find orphaned resources, idle VMs, and unattached volumes across AWS, Azure, and GCP. 
+No credentials needed to demo. No SaaS bloat. Just a single binary.
 
----
+## Quick Start (2 minutes)
 
-## Key Features
+```bash
+# Try it now with mock data (no setup required)
+./costctl --demo cost summary
+./costctl --demo waste find
+./costctl --demo waste find --format html
+```
 
-- **Multi-Cloud Billing Aggregation**: Maps diverse provider cost structures (AWS Cost Explorer, Azure Cost Management, GCP Cloud Billing) into a unified, queryable schema.
-- **Waste Asset Detection Rules**:
-  - **Compute (VMs)**: Idle virtual machines (CPU utilization under thresholds over 7 days).
-  - **Storage (Disks)**: Unattached EBS volumes, Azure Managed Disks, and GCE Persistent Disks.
-  - **Networking (IPs)**: Orphaned Elastic/Public IPs not associated with active instances or load balancers.
-  - **Backups (Snapshots)**: Stale or orphaned database/volume snapshots older than retention policies.
-  - **Databases**: Idle RDS or Cloud SQL instances with no active connections or low CPU.
-- **Unified Tag Normalization**: Maps mismatched tag keys (e.g., `Owner`, `owner`, `owner-contact`) into standard target dimensions defined in a single configuration.
-- **CI/CD Quality Gates**: Exit-code policy checks (`--fail-on-waste` and `--max-waste`) to automatically fail automated pipelines when waste thresholds are breached.
-- **Interactive SPA HTML Dashboard**: Generates a gorgeous glassmorphic dashboard report with:
-  - **SSO Gate Portal**: Google Workspace and Microsoft Entra ID login flows.
-  - **Consolidated Invoicing**: Multi-cloud invoice aggregating linked accounts and active subscriptions.
-  - **Timeline Scaling**: Recalculates spend metrics dynamically across **7D**, **30D**, **QTR**, **1Y**, and **Custom** date ranges.
-  - **Account Connector Form**: Dynamically connect and disconnect cloud accounts with custom key-value tags.
-  - **Admin Settings & Provisioning**: Invite teammates with scopes (Admin, Operator, Viewer) and trigger Google directory sync.
+Opens `report.html` with a real-time dashboard showing:
+- Consolidated spend across 3 clouds ($60K+/month example)
+- **$1,086/month in detected waste** (idle VMs, unattached volumes, stale snapshots)
+- Waste flagged per resource with resize/decommission recommendations
 
----
+## Why costctl?
+
+| Problem | Typical Cost | costctl |
+|---------|---|---|
+| CloudHealth / Densify | $50K+/year | Free & open-source |
+| Multi-cloud visibility | Manual CSV exports | Unified CLI + HTML dashboard |
+| Waste detection | Vague recommendations | Specific resources + savings estimates |
+| CI/CD gates | Not included | Built-in (`--fail-on-waste`) |
+
+## Features
+
+- **Multi-Cloud Aggregation**: AWS Cost Explorer, Azure Cost Management, GCP Cloud Billing → single queryable schema
+- **Waste Detection**: Idle compute, unattached disks, orphaned IPs, stale snapshots, idle databases
+- **Tag Normalization**: Map provider-specific tag variants (Owner/owner/owner-contact) to standard dimensions
+- **HTML Dashboard**: Glassmorphic SPA with time filtering, cloud toggles, exportable findings
+- **CI/CD Gates**: Fail pipelines when waste exceeds thresholds (`--fail-on-waste`, `--max-waste`)
 
 ## Installation
 
-### Prerequisites
-- Go 1.18 or higher (Go 1.26+ recommended)
-
-### Build from Source
 ```bash
-# Clone the repository
-git clone https://github.com/<username>/costctl.git
+git clone https://github.com/sumankondla-88/costctl.git
 cd costctl
-
-# Build the native binary
 go build -o costctl main.go
 ```
 
----
-
 ## Usage
 
-### 1. Configuration
-`costctl` looks for a `.costctl.yaml` file in the current directory or a custom path:
-```yaml
-clouds:
-  - aws
-  - azure
-  - gcp
-
-tag_mappings:
-  environment:
-    - env
-    - environment
-    - stage
-  owner:
-    - owner
-    - Creator
-  project:
-    - project
-    - app
-
-thresholds:
-  cpu_utilization_percent: 5
-  idle_days: 7
-  snapshot_retention_days: 30
-  disk_unattached_days: 3
-
-budget:
-  total_monthly: 10000
-  fail_on_waste_threshold: 500
-```
-
-### 2. Basic Commands
-
-#### Run a dry-run scan (Demo Mode)
+### Demo Mode (No Credentials)
 ```bash
-# View active cost spend summary by provider
-./costctl --demo cost summary
-
-# View detailed console waste audit table
-./costctl --demo waste find
-
-# View detailed JSON waste findings for automation pipelines
-./costctl --demo waste find --format json
+./costctl --demo cost summary      # Show spend by cloud
+./costctl --demo waste find         # Show waste findings (console table)
+./costctl --demo waste find --format html  # Generate dashboard report
 ```
 
-#### Generate HTML SPA Dashboard
+### Real Cloud Data
 ```bash
-./costctl --demo waste find --format html
-# Generates "report.html" in the current directory
+# Create .costctl.yaml with your cloud credentials (see docs/)
+./costctl cost summary
+./costctl waste find --format json  # Pipe to automation
 ```
 
-#### Enforce CI/CD Budget Thresholds
+### CI/CD Compliance Gate
 ```bash
-# Fails with exit code 1 if potential monthly waste savings exceed default budget threshold ($500)
-./costctl --demo waste find --fail-on-waste
+# Fail pipeline if waste > $500/month
+./costctl waste find --fail-on-waste
 
-# Override threshold dynamically ($1,000 threshold)
-./costctl --demo waste find --fail-on-waste --max-waste 1000
+# Override threshold
+./costctl waste find --fail-on-waste --max-waste 1000
 ```
 
----
+## Configuration
 
-## License & Trademark
+See `.costctl.yaml.example` for tag mapping, thresholds, and budget settings.
 
-© 2026 costctl. Author: **costctl contributors**. Trademark ™ All rights reserved.
+## Contributing
+
+PRs welcome. Help us add more waste heuristics, cloud providers, or integrations.
+
+## License
+
+MIT
